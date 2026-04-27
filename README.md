@@ -31,6 +31,12 @@ The app bundle is written to `dist/Function Keys.app`.
 
 The build script ad-hoc signs the app locally. It does not create a notarized release build.
 
+## Release
+
+Public releases are created from version tags by GitHub Actions. The release workflow builds a Developer ID signed app, notarizes and staples it, packages it as a notarized DMG, and publishes the DMG to GitHub Releases.
+
+See [docs/release.md](docs/release.md) for the required GitHub secrets and release steps.
+
 If you use Bartender, look for the item named `Function Keys`. The menu-bar icon changes with the active mode, but the bundle identity and accessibility label are stable so Bartender can recognize it as the same utility.
 
 The app checks the macOS preference every 30 seconds so it can notice changes made directly in System Settings.
