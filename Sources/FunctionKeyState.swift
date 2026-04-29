@@ -60,8 +60,9 @@ final class FunctionKeyState: ObservableObject {
 
     private func startRefreshing() {
         refreshTimer = Timer.scheduledTimer(withTimeInterval: 30, repeats: true) { [weak self] _ in
+            guard let self else { return }
             Task { @MainActor in
-                self?.refresh()
+                self.refresh()
             }
         }
     }
