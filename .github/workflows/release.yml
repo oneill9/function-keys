@@ -79,11 +79,23 @@ jobs:
             --output-format json | jq -r '.id')
           echo "App submission ID: $SUBMISSION_ID"
 
-          xcrun notarytool log "$SUBMISSION_ID" \
-            --key "$APPLE_API_KEY_PATH" \
-            --key-id "$APPLE_API_KEY_ID" \
-            --issuer "$APPLE_API_ISSUER_ID" \
-            --wait
+          for i in $(seq 1 24); do
+            STATUS=$(xcrun notarytool info "$SUBMISSION_ID" \
+              --key "$APPLE_API_KEY_PATH" \
+              --key-id "$APPLE_API_KEY_ID" \
+              --issuer "$APPLE_API_ISSUER_ID" \
+              --output-format json | jq -r '.status')
+            echo "[${i}] notarization status: $STATUS"
+            if [[ "$STATUS" == "Accepted" ]]; then break; fi
+            if [[ "$STATUS" == "Invalid" || "$STATUS" == "Rejected" ]]; then
+              xcrun notarytool log "$SUBMISSION_ID" \
+                --key "$APPLE_API_KEY_PATH" \
+                --key-id "$APPLE_API_KEY_ID" \
+                --issuer "$APPLE_API_ISSUER_ID" /dev/stderr || true
+              exit 1
+            fi
+            sleep 30
+          done
 
       - name: Staple app notarization ticket
         run: xcrun stapler staple "dist/Function Keys.app"
@@ -108,11 +120,23 @@ jobs:
             --output-format json | jq -r '.id')
           echo "DMG submission ID: $SUBMISSION_ID"
 
-          xcrun notarytool log "$SUBMISSION_ID" \
-            --key "$APPLE_API_KEY_PATH" \
-            --key-id "$APPLE_API_KEY_ID" \
-            --issuer "$APPLE_API_ISSUER_ID" \
-            --wait
+          for i in $(seq 1 24); do
+            STATUS=$(xcrun notarytool info "$SUBMISSION_ID" \
+              --key "$APPLE_API_KEY_PATH" \
+              --key-id "$APPLE_API_KEY_ID" \
+              --issuer "$APPLE_API_ISSUER_ID" \
+              --output-format json | jq -r '.status')
+            echo "[${i}] notarization status: $STATUS"
+            if [[ "$STATUS" == "Accepted" ]]; then break; fi
+            if [[ "$STATUS" == "Invalid" || "$STATUS" == "Rejected" ]]; then
+              xcrun notarytool log "$SUBMISSION_ID" \
+                --key "$APPLE_API_KEY_PATH" \
+                --key-id "$APPLE_API_KEY_ID" \
+                --issuer "$APPLE_API_ISSUER_ID" /dev/stderr || true
+              exit 1
+            fi
+            sleep 30
+          done
 
       - name: Staple notarization ticket
         run: xcrun stapler staple "$DMG_PATH"
