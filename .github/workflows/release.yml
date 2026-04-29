@@ -83,6 +83,11 @@ jobs:
       - name: Create DMG
         run: ./scripts/create-dmg.sh
 
+      - name: Sign DMG
+        env:
+          CODESIGN_IDENTITY: ${{ secrets.DEVELOPER_ID_APPLICATION }}
+        run: codesign --sign "$CODESIGN_IDENTITY" --timestamp "$DMG_PATH"
+
       - name: Notarize DMG
         env:
           APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
