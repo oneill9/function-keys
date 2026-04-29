@@ -120,9 +120,11 @@ struct DefaultsFunctionKeyPreferences: FunctionKeyPreferences {
     }
 
     private func notifyKeyboardPreferenceChanged() {
-        DistributedNotificationCenter.default().post(
-            name: Notification.Name("AppleKeyboardPreferencesChangedNotification"),
-            object: nil
-        )
+        typealias NotifyPostFn = @convention(c) (UnsafePointer<CChar>) -> UInt32
+        let handle = dlopen("/usr/lib/system/libsystem_notify.dylib", RTLD_LAZY)
+        defer { dlclose(handle) }
+        guard let sym = dlsym(handle, "notify_post") else { return }
+        let fn = unsafeBitCast(sym, to: NotifyPostFn.self)
+        _ = "com.apple.keyboard.fnstatedidchange".withCString { fn($0) }
     }
 }
