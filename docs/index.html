@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Function Keys - macOS Menu Bar App</title>
+    <meta name="description" content="A tiny macOS menu bar app for viewing and toggling whether F1, F2, etc. behave as standard function keys.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <!-- SVG Favicon -->
+    <link rel="icon" href="function-keys-menu.svg" type="image/svg+xml">
+</head>
+<body>
+    <main class="container">
+        <div class="hero-image-container">
+            <img src="function-keys-menu.svg" alt="Function Keys menu preview">
+        </div>
+
+        <h1>Function Keys</h1>
+        <p class="subtitle">A tiny macOS menu bar app for viewing and toggling whether F1, F2, etc. behave as standard function keys. Built for macOS 13+.</p>
+
+        <div class="download-section">
+            <a href="https://github.com/oneill9/function-keys/releases/latest" id="download-btn" class="btn-primary loading">
+                <div class="spinner"></div>
+                <span class="btn-text">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 8px; margin-top: -2px;">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    Download Latest .dmg
+                </span>
+            </a>
+            <div class="version-info" id="version-info">
+                Fetching latest version...
+            </div>
+        </div>
+
+        <div class="features">
+            <div class="feature-card">
+                <h3>Menu Bar Only</h3>
+                <p>No Dock icon clutter. Lives quietly in your menu bar, instantly showing you the current state of your function keys.</p>
+            </div>
+            <div class="feature-card">
+                <h3>System Native</h3>
+                <p>Reads and writes the official macOS preference (com.apple.keyboard.fnState). Changes made in System Settings are reflected immediately.</p>
+            </div>
+            <div class="feature-card">
+                <h3>Privacy First</h3>
+                <p>Function Keys does not collect data, access the network, or store app-specific settings. It's completely open source.</p>
+            </div>
+        </div>
+
+        <footer>
+            <p>Released under the MIT License • <a href="https://github.com/oneill9/function-keys" target="_blank" rel="noopener noreferrer">View on GitHub</a></p>
+        </footer>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const downloadBtn = document.getElementById('download-btn');
+            const versionInfo = document.getElementById('version-info');
+
+            try {
+                const response = await fetch('https://api.github.com/repos/oneill9/function-keys/releases/latest');
+                if (!response.ok) throw new Error('Failed to fetch release info');
+                
+                const release = await response.json();
+                
+                // Find the dmg asset
+                const dmgAsset = release.assets.find(asset => asset.name.endsWith('.dmg'));
+                
+                if (dmgAsset) {
+                    downloadBtn.href = dmgAsset.browser_download_url;
+                    downloadBtn.classList.remove('loading');
+                    
+                    const sizeMB = (dmgAsset.size / (1024 * 1024)).toFixed(2);
+                    versionInfo.innerHTML = `
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg>
+                        Version ${release.tag_name} • Universal Binary • ${sizeMB} MB
+                    `;
+                } else {
+                    throw new Error('No DMG found in latest release');
+                }
+            } catch (error) {
+                console.error('Error fetching release:', error);
+                downloadBtn.classList.remove('loading');
+                versionInfo.textContent = 'Click to view releases on GitHub';
+            }
+        });
+    </script>
+</body>
+</html>
