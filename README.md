@@ -2,6 +2,8 @@
 
 ![Function Keys menu](docs/function-keys-menu.svg)
 
+**[Download the latest version here](https://oneill9.github.io/function-keys/)**
+
 A tiny macOS menu bar app for viewing and toggling whether `F1`, `F2`, etc. behave as standard function keys.
 
 Requires macOS 13 or later.
