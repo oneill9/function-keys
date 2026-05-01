@@ -28,10 +28,6 @@ final class FunctionKeyState: ObservableObject {
         startRefreshing()
     }
 
-    var menuTitle: String {
-        standardFunctionKeys ? "Fn: F1-F12" : "Fn: Media"
-    }
-
     var modeTitle: String {
         standardFunctionKeys ? "F1, F2 as Standard Keys" : "Media Keys"
     }
@@ -43,10 +39,6 @@ final class FunctionKeyState: ObservableObject {
         isRefreshingFromSystem = true
         standardFunctionKeys = currentValue
         isRefreshingFromSystem = false
-    }
-
-    func toggleMode() {
-        standardFunctionKeys.toggle()
     }
 
     func setMode(standardFunctionKeys enabled: Bool) {
