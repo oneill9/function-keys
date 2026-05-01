@@ -158,7 +158,7 @@ jobs:
           echo "" >> release_notes.md
 
       - name: Publish GitHub Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           files: ${{ env.DMG_PATH }}
           body_path: release_notes.md
