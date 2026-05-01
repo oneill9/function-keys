@@ -28,6 +28,13 @@ mkdir -p "$DMG_DIR"
 cp -R "$APP_DIR" "$STAGING_DIR/"
 ln -s /Applications "$STAGING_DIR/Applications"
 
+# Set volume icon
+if [[ -f "$APP_DIR/Contents/Resources/AppIcon.icns" ]]; then
+    cp "$APP_DIR/Contents/Resources/AppIcon.icns" "$STAGING_DIR/.VolumeIcon.icns"
+    SetFile -c icnC "$STAGING_DIR/.VolumeIcon.icns" 2>/dev/null || true
+    SetFile -a C "$STAGING_DIR" 2>/dev/null || true
+fi
+
 hdiutil create \
     -volname "Function Keys" \
     -srcfolder "$STAGING_DIR" \

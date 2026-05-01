@@ -15,7 +15,9 @@ swift build -c release
 
 rm -rf "$APP_DIR"
 mkdir -p "$APP_DIR/Contents/MacOS"
+mkdir -p "$APP_DIR/Contents/Resources"
 cp "$ROOT_DIR/AppBundle/Info.plist" "$INFO_PLIST"
+cp "$ROOT_DIR/AppBundle/AppIcon.icns" "$APP_DIR/Contents/Resources/"
 
 if [[ -n "$APP_VERSION" ]]; then
     /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $APP_VERSION" "$INFO_PLIST"
