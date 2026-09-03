@@ -23,6 +23,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+      - name: Test project page analytics
+        run: node --test tests/pages.test.cjs
       - name: Setup Pages
         uses: actions/configure-pages@v6
         with:
