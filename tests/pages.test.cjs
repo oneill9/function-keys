@@ -21,6 +21,15 @@ class ProjectPageDriver {
         return fs.readFileSync(path.join(__dirname, '../docs/sitemap.xml'), 'utf8');
     }
 
+    reference(name) {
+        return fs.readFileSync(path.join(__dirname, '../docs', name), 'utf8');
+    }
+
+    referenceLinks() {
+        return [...this.html.matchAll(/<link rel="describedby" href="([^"]+)" type="([^"]+)"/g)]
+            .map((match) => ({ url: match[1], type: match[2] }));
+    }
+
     analyticsCommands() {
         const context = vm.createContext({ window: {} });
         const scripts = [...this.html.matchAll(/<script>([\s\S]*?)<\/script>/g)];
@@ -31,6 +40,25 @@ class ProjectPageDriver {
         return JSON.parse(JSON.stringify(context.dataLayer.map((command) => [...command])));
     }
 }
+
+test('agents can discover both raw project references from the home page', () => {
+    const page = new ProjectPageDriver();
+    const baseUrl = 'https://oneill9.github.io/function-keys/';
+
+    assert.deepEqual(page.referenceLinks(), [
+        { url: `${baseUrl}llms.txt`, type: 'text/plain' },
+        { url: `${baseUrl}llms.md`, type: 'text/markdown' }
+    ]);
+    for (const name of ['llms.txt', 'llms.md']) {
+        const reference = page.reference(name);
+        assert.match(reference, /^# Function Keys\n\n> /);
+        assert.doesNotMatch(reference, /<!doctype|<html/i);
+        assert.match(reference, /https:\/\/github.com\/oneill9\/function-keys/);
+    }
+    assert.ok(page.reference('llms.txt').includes(`](${baseUrl}llms.md)`));
+    assert.match(page.reference('llms.md'), /macOS 13/);
+    assert.match(page.reference('llms.md'), /30 seconds/);
+});
 
 test('search engines can discover the canonical project page through its sitemap', () => {
     const page = new ProjectPageDriver();

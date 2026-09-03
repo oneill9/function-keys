@@ -1,0 +1,17 @@
+# Function Keys
+
+> A macOS menu bar app that shows and switches whether F1, F2 and the other function keys act as standard function keys or hardware controls.
+
+Requires macOS 13 or later. The app changes the macOS keyboard preference; it does not remap individual keys.
+
+## Project reference
+
+- [Function Keys reference](https://oneill9.github.io/function-keys/llms.md): Installation, menu behaviour, requirements and build instructions in Markdown.
+- [Project homepage](https://oneill9.github.io/function-keys/): App overview and screenshots.
+- [README](https://raw.githubusercontent.com/oneill9/function-keys/main/README.md): Maintained project documentation.
+- [Latest release](https://github.com/oneill9/function-keys/releases/latest): Release notes and downloadable app.
+
+## Optional
+
+- [Source repository](https://github.com/oneill9/function-keys): Swift source, tests and issue tracker.
+- [Release process](https://oneill9.github.io/function-keys/release.md): How signed and notarized releases are built.
