@@ -7,6 +7,7 @@ const vm = require('node:vm');
 class ProjectPageDriver {
     constructor() {
         this.html = fs.readFileSync(path.join(__dirname, '../docs/index.html'), 'utf8');
+        this.workflowPath = path.join(__dirname, '../.github/workflows/pages.yml');
     }
 
     analyticsLoaders() {
@@ -19,6 +20,24 @@ class ProjectPageDriver {
 
     sitemap() {
         return fs.readFileSync(path.join(__dirname, '../docs/sitemap.xml'), 'utf8');
+    }
+
+    sitemapUrls() {
+        return [...this.sitemap().matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => match[1]);
+    }
+
+    workflow() {
+        return fs.readFileSync(this.workflowPath, 'utf8');
+    }
+
+    indexNowKeyFiles() {
+        return fs.readdirSync(path.join(__dirname, '../docs'))
+            .filter((name) => /^[0-9a-f]{32}\.txt$/.test(name));
+    }
+
+    indexNowPayload() {
+        const match = this.workflow().match(/--data-binary\s+'(\{[\s\S]*?\})'/);
+        return match ? JSON.parse(match[1]) : null;
     }
 
     reference(name) {
@@ -66,7 +85,25 @@ test('search engines can discover the canonical project page through its sitemap
 
     assert.deepEqual(page.canonicalUrls(), [canonicalUrl]);
     assert.match(page.sitemap(), /<urlset xmlns="http:\/\/www.sitemaps.org\/schemas\/sitemap\/0.9">/);
-    assert.deepEqual([...page.sitemap().matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => match[1]), [canonicalUrl]);
+    assert.deepEqual(page.sitemapUrls(), [canonicalUrl]);
+});
+
+test('IndexNow is notified after deployment for every sitemap URL', () => {
+    const page = new ProjectPageDriver();
+    const keyFiles = page.indexNowKeyFiles();
+
+    assert.equal(keyFiles.length, 1);
+    const key = path.basename(keyFiles[0], '.txt');
+    assert.equal(page.reference(keyFiles[0]).trim(), key);
+    assert.match(page.workflow(), /\n  indexnow:\n/);
+    assert.match(page.workflow(), /needs: deploy/);
+    assert.match(page.workflow(), /--fail-with-body/);
+    assert.deepEqual(page.indexNowPayload(), {
+        host: 'oneill9.github.io',
+        key,
+        keyLocation: `https://oneill9.github.io/function-keys/${key}.txt`,
+        urlList: page.sitemapUrls()
+    });
 });
 
 test('the project page immediately initializes its own analytics stream with isolated cookies', () => {

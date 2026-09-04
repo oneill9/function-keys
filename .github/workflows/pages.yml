@@ -36,3 +36,30 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
+
+  indexnow:
+    name: Notify IndexNow
+    needs: deploy
+    permissions: {}
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Notify IndexNow
+        run: |
+          test "$(curl --silent --show-error --fail \
+            --retry 5 --retry-delay 2 --retry-all-errors \
+            "https://oneill9.github.io/function-keys/bd10d05365b4299fded10e708b9f932c.txt")" \
+            = "bd10d05365b4299fded10e708b9f932c"
+          curl --silent --show-error --fail-with-body \
+            --request POST "https://api.indexnow.org/indexnow" \
+            --header "Content-Type: application/json; charset=utf-8" \
+            --data-binary '{
+              "host": "oneill9.github.io",
+              "key": "bd10d05365b4299fded10e708b9f932c",
+              "keyLocation": "https://oneill9.github.io/function-keys/bd10d05365b4299fded10e708b9f932c.txt",
+              "urlList": [
+                "https://oneill9.github.io/function-keys/"
+              ]
+            }'
+          echo "### IndexNow" >> "$GITHUB_STEP_SUMMARY"
+          echo "Notified search engines of updated pages" >> "$GITHUB_STEP_SUMMARY"
